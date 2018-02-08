@@ -1,0 +1,104 @@
+pipeline {
+    agent any
+
+    parameters {
+        string(name: 'PROJECT_WORKSPACE', defaultValue: '', description: 'Maven parent workspace dir')
+		string(name: 'PROJECT_NAME_PRE_FILETOCONTAINER_PATH', defaultValue: '', description: 'Path to .ear file for Pre-Production service application deploy')
+		string(name: 'PROJECT_NAME_PRO_FILETOCONTAINER_PATH', defaultValue: '', description: 'Path to .ear file for Production service application deploy')
+		string(name: 'SERVICE_NAME_PRE', defaultValue: '', description: 'Pre-Production Service name for doing docker-compose up')
+		string(name: 'SERVICE_NAME_PRO', defaultValue: '', description: 'Production Service name for doing docker-compose up')
+		string(name: 'BRANCH_NAME', defaultValue: '', description: 'Git flow branch')
+    }
+    
+    stages{
+        stage('Clean Stage') {
+            steps {
+                sh "cd $GRUPO_AL_MAVEN_SCRIPTS_BASE_PATH && ./maven_clean.sh ${params.PROJECT_WORKSPACE}"
+            }
+        }
+
+        stage('Compile Stage') {
+            steps {
+                sh "cd $GRUPO_AL_MAVEN_SCRIPTS_BASE_PATH && ./maven_compile.sh ${params.PROJECT_WORKSPACE}"
+            }
+        }
+
+        stage('Install Stage') {
+            steps {
+                sh "cd $GRUPO_AL_MAVEN_SCRIPTS_BASE_PATH && ./maven_install.sh ${params.PROJECT_WORKSPACE}"
+            }
+        }
+
+        stage('Deploy Stage') {
+            steps {
+                sh "cd $GRUPO_AL_MAVEN_SCRIPTS_BASE_PATH && ./maven_deploy.sh ${params.PROJECT_WORKSPACE}"
+            }
+        }
+        
+       stage('Clean & Build remote files directory Pre-Production') {
+		 when {
+               branch 'develop'
+            }
+            steps {
+                sh 'ssh $GRUPO_AL_USERNAME@$GRUPO_AL_SERVER_IP rm -rf ' + params.PROJECT_NAME_PRE_FILETOCONTAINER_PATH
+                sh 'ssh $GRUPO_AL_USERNAME@$GRUPO_AL_SERVER_IP mkdir -p ' + params.PROJECT_NAME_PRE_FILETOCONTAINER_PATH
+            }
+        }
+        
+        stage('Transfer files Pre-Production') {
+            when {
+               branch 'develop'
+            }
+            
+            steps {
+                script {
+                env.FOLDER = sh (script: "cd ${params.PROJECT_WORKSPACE} && cd \$(ls -d */|head -n 1) && pwd", returnStdout: true).replaceAll("\\s","")
+                
+                }
+                sh 'scp $FOLDER' + '/target/*.ear $GRUPO_AL_USERNAME@$GRUPO_AL_SERVER_IP:/root' + params.PROJECT_NAME_PRE_FILETOCONTAINER_PATH 
+            }
+        }
+        
+        stage('Regenerate Docker Image - Pre Production Environment') {
+            when {
+                branch 'develop'
+            }
+            steps {
+                sh 'ssh $GRUPO_AL_USERNAME@$GRUPO_AL_SERVER_IP "cd $GRUPO_AL_CI_CO_PATH/ && docker-compose build --no-cache '+ params.SERVICE_NAME_PRE + ' && docker-compose up -d "' + params.SERVICE_NAME_PRE
+            }
+        }
+		
+       stage('Clean & Build remote files directory Production') {
+		 when {
+               branch 'master'
+            }
+            steps {
+                sh 'ssh $GRUPO_AL_USERNAME@$GRUPO_AL_SERVER_IP rm -rf ' + params.PROJECT_NAME_PRO_FILETOCONTAINER_PATH
+                sh 'ssh $GRUPO_AL_USERNAME@$GRUPO_AL_SERVER_IP mkdir -p ' + params.PROJECT_NAME_PRO_FILETOCONTAINER_PATH
+            }
+        }
+        
+        stage('Transfer files Production') {
+            when {
+               branch 'master'
+            }
+            
+            steps {
+                script {
+                env.FOLDER = sh (script: "cd ${params.PROJECT_WORKSPACE} && cd \$(ls -d */|head -n 1) && pwd", returnStdout: true).replaceAll("\\s","")
+                
+                }
+                sh 'scp $FOLDER' + '/target/*.ear $GRUPO_AL_USERNAME@$GRUPO_AL_SERVER_IP:/root' + params.PROJECT_NAME_PRO_FILETOCONTAINER_PATH 
+            }
+        }
+        
+        stage('Regenerate Docker Image - Production Environment') {
+            when {
+                branch 'master'
+            }
+            steps {
+                sh 'ssh $GRUPO_AL_USERNAME@$GRUPO_AL_SERVER_IP "cd $GRUPO_AL_CI_CO_PATH/ && docker-compose build --no-cache '+ params.SERVICE_NAME_PRO + ' && docker-compose up -d "' + params.SERVICE_NAME_PRO
+            }
+        }
+    }
+}

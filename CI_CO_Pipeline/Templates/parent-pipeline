@@ -1,0 +1,44 @@
+pipeline {
+    agent any
+    parameters {
+        string(name: 'PROJECT_WORKSPACE', defaultValue: '', description: 'Maven parent workspace dir')
+    }
+    stages {
+
+        stage('Clean Stage') {
+            steps {
+                sh "cd $GRUPO_AL_MAVEN_SCRIPTS_BASE_PATH && ./maven_clean.sh ${params.PROJECT_WORKSPACE}"
+            }
+        }
+        
+        stage('Compile Stage') {
+            steps {
+                sh "cd $GRUPO_AL_MAVEN_SCRIPTS_BASE_PATH && ./maven_compile.sh ${params.PROJECT_WORKSPACE}"
+            }
+        }
+
+        stage('Package Stage') {
+            steps {
+                sh "cd $GRUPO_AL_MAVEN_SCRIPTS_BASE_PATH && ./maven_package.sh ${params.PROJECT_WORKSPACE}"
+            }
+        }
+        
+        stage('Install Stage') {
+            steps {
+                sh "cd $GRUPO_AL_MAVEN_SCRIPTS_BASE_PATH && ./maven_install.sh ${params.PROJECT_WORKSPACE}"
+            }
+        }
+        
+        stage('Deploy Stage') {
+            steps {
+                sh "cd $GRUPO_AL_MAVEN_SCRIPTS_BASE_PATH && ./maven_deploy.sh ${params.PROJECT_WORKSPACE}"
+            }
+        }
+
+        stage('Activate Chuck Norris Plugin') {
+            steps {
+              step([$class: 'hudson.plugins.chucknorris.CordellWalkerRecorder'])
+            }
+        }
+    }
+}

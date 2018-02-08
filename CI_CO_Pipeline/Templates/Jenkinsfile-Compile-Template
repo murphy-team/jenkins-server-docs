@@ -1,0 +1,30 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Clean WorkSpace') {
+            steps {
+                cleanWs()
+            }
+        }
+
+    stage('Prepare Environment') {
+            steps {
+                git branch: '$BRANCH_NAME', url: 'git@gitlab.example.com:group-name/project-name-compile.git'
+            }
+        }
+
+    stage('Compile pipeline') {
+            steps {
+                build job: 'compile-pipeline', 
+				parameters: [[$class: 'StringParameterValue', name: 'PROJECT_WORKSPACE', value: "${env.WORKSPACE}"], 
+							 [$class: 'StringParameterValue', name: 'URL_REPOSITORY', value: "git@gitlab.example.com:group-name/project-name-parent-name.git"],
+							 [$class: 'StringParameterValue', name: 'PROJECT_NAME_PRE_FILETOCONTAINER_PATH', value: "${PROJECT_NAME_PRE_FILETOCONTAINER_PATH}"],
+							 [$class: 'StringParameterValue', name: 'PROJECT_NAME_PRO_FILETOCONTAINER_PATH', value: "${PROJECT_NAME_PRO_FILETOCONTAINER_PATH}"], 
+							 [$class: 'StringParameterValue', name: 'SERVICE_NAME_PRE', value: "${SERVICE_NAME_PRE}"],
+							 [$class: 'StringParameterValue', name: 'SERVICE_NAME_PRO', value: "${SERVICE_NAME_PRO}"],
+                             [$class: 'StringParameterValue', name: 'BRANCH_NAME', value: "${BRANCH_NAME}"]]
+            }
+        }
+    }
+}
