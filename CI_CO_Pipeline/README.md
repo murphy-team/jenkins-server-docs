@@ -124,7 +124,7 @@ En la carpeta de Templates se encuentra un ejemplo sobre la configuración del J
     - SonarQube analysis. Realiza el análisis del código fuente del proyecto haciendo uso de sonar. La herramienta ha debido ser previamente configurada correctamente en Jenkins. En caso de duda acerca de esta configuración consultar la documentación de la configuración de Jenkins(v.2.60.3)
     - Post-build Pre-Production Action. Sólo se ejecutará en el caso de la rama 'develop'. Una vez realizada toda la etapa de build de Jenkins se ejecutará el stage correspondiente a la etapa post-build que realiza la llamada al job del proyecto compile en su versión de Pre-Producción (rama develop) para continuar con la integración continua del proyecto. En este caso el proyecto esta configurado para no esperar a la compilación del compile para acabar con la suya propia con el objetivo de no ocupar más ejecutores de los necesarios. En caso de querer que la compilación de este acabe a la vez que el compile cambiar el parámetro *wait* a true (mirar ejemplo inferior)
 
-    ```
+
             stage('Post-build Pre-Production Action') {
             when {
                 branch 'develop'
@@ -135,12 +135,13 @@ En la carpeta de Templates se encuentra un ejemplo sobre la configuración del J
                 propagate: true,
                 wait: true
             }
-        }
-    ```
+            }
+
+
 
     - Post-build Production Action. Sólo se ejecutará en el caso de la rama 'master'. Una vez realizada toda la etapa de build de Jenkins se ejecutará el stage correspondiente a la etapa post-build que realiza la llamada al job del proyecto compile en su versión de Producción (rama master) para continuar con la integración continua del proyecto. En este caso el proyecto esta configurado para no esperar a la compilación del compile para acabar con la suya propia con el objetivo de no ocupar más ejecutores de los necesarios. En caso de querer que la compilación de este acabe a la vez que el compile cambiar el parámetro *wait* a true (mirar dejemplo inferior)
 
-    ```
+      
             stage('Post-build Production Action') {
             when {
                 branch 'master'
@@ -151,9 +152,10 @@ En la carpeta de Templates se encuentra un ejemplo sobre la configuración del J
                 propagate: true,
                 wait: true
             }
-        }
-    ```
+            }
+
  
+
 
 
 
