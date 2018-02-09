@@ -152,11 +152,13 @@ Server URL: http://sonar:9000
 
 ### Jenkins Location
 
-Dirección URL en el cuál se encuentra alojado Jenkins (Dirección IP y puertos correspondientes). Ejemplo: 
+Dirección URL en el cuál se encuentra alojado Jenkins (Dirección IP y puertos correspondientes) y dirección de correo para el envío de emails por parte de Jenkins. Ejemplo: 
 
 ```
-http://127.0.0.1:8080/
+Jenkins URL: http://127.0.0.1:8080/
+System Admin e-mail address: example@email.com
 ```
+![ConfigureEmail](JenkinsPictures/configure-email.png)
 
 ### Publish over SSH
 

@@ -1,0 +1,26 @@
+pipeline {
+    agent any
+    parameters {
+        string(name: 'JOB_NAME', defaultValue: '', description: 'Job name to be deployed')
+		string(name: 'DESTINATION_EMAIL', defaultValue: '', description: 'Email for user confirmation')
+        
+    }
+    stages {
+	
+		stage("New mail controlled build script") {
+            steps {
+			    echo 'Enviando email...'
+				mail bcc: '', body: 'Preparando despliegue para el proyecto ${params.JOB_NAME}. Para aceptar  o cancelar, acceda a ${env.JOB_URL}${env.BUILD_NUMBER}/input', cc: '', from: 'jenkins@email.com', replyTo: '', 
+                     subject: 'Despliegue para ${params.JOB_NAME} ${params.BUILD_NUMBER}', to: "${params.DESTINATION_EMAIL}"
+                echo 'Mail enviado, esperando interaccion del usuario...'
+				script {
+		
+                    compile = input(
+                            id: 'userInput', message: '¿Compilar?',
+                            parameters: [[$class: 'BooleanParameterDefinition', defaultValue: false, description: 'Versionar, desplegar en producción y preparar un nuevo Snapshot', name: 'Marque para proceder']]
+                    )
+                }
+            }
+        }
+    }
+}

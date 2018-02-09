@@ -34,6 +34,18 @@ pipeline {
                 sh "cd $GRUPO_AL_MAVEN_SCRIPTS_BASE_PATH && ./maven_deploy.sh ${params.PROJECT_WORKSPACE}"
             }
         }
+
+       stage('Pre-Production Wildfly Deployment confirmation') {
+            when {
+                branch 'develop'
+            }
+            steps {
+                script {
+                    res = build job: 'mail-confirmation', parameters: [[$class: 'StringParameterValue', name: 'JOB_NAME', value: "${params.SERVICE_NAME_PRE}"],
+                                                                        [$class: 'StringParameterValue', name: 'DESTINATION_EMAIL', value: "user@example.com"]], wait: true, propagate:true
+                }
+            }
+        }
         
        stage('Clean & Build remote files directory Pre-Production') {
 		 when {
@@ -64,6 +76,18 @@ pipeline {
             }
             steps {
                 sh 'ssh $GRUPO_AL_USERNAME@$GRUPO_AL_SERVER_IP "cd $GRUPO_AL_CI_CO_PATH/ && docker-compose build --no-cache '+ params.SERVICE_NAME_PRE + ' && docker-compose up -d "' + params.SERVICE_NAME_PRE
+            }
+        }
+
+       stage('Production Wildfly Deployment confirmation') {
+            when {
+                branch 'master'
+            }
+            steps {
+                script {
+                    res = build job: 'mail-confirmation', parameters: [[$class: 'StringParameterValue', name: 'JOB_NAME', value: "${params.SERVICE_NAME_PRO}"],
+                                                                        [$class: 'StringParameterValue', name: 'DESTINATION_EMAIL', value: "user@example.com"]], wait: true, propagate:true
+                }
             }
         }
 		
