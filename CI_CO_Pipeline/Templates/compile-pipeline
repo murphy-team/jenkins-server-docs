@@ -51,11 +51,10 @@ pipeline {
             }
             
             steps {
-                script {
-                env.FOLDER = sh (script: "cd ${params.PROJECT_WORKSPACE} && cd \$(ls -d */|head -n 1) && pwd", returnStdout: true).replaceAll("\\s","")
-                
-                }
-                sh 'scp $FOLDER' + '/target/*.ear $GRUPO_AL_USERNAME@$GRUPO_AL_SERVER_IP:/root' + params.PROJECT_NAME_PRE_FILETOCONTAINER_PATH 
+              script {
+                		env.FOLDER = sh (script: "find ${params.PROJECT_WORKSPACE} -name \\*.ear", returnStdout: true).replaceAll("\\s","")
+                     }
+                sh 'scp $FOLDER $GRUPO_AL_USERNAME@$GRUPO_AL_SERVER_IP:/root' + params.PROJECT_NAME_PRE_FILETOCONTAINER_PATH  
             }
         }
         
@@ -84,11 +83,10 @@ pipeline {
             }
             
             steps {
-                script {
-                env.FOLDER = sh (script: "cd ${params.PROJECT_WORKSPACE} && cd \$(ls -d */|head -n 1) && pwd", returnStdout: true).replaceAll("\\s","")
-                
-                }
-                sh 'scp $FOLDER' + '/target/*.ear $GRUPO_AL_USERNAME@$GRUPO_AL_SERVER_IP:/root' + params.PROJECT_NAME_PRO_FILETOCONTAINER_PATH 
+              script {
+                		env.FOLDER = sh (script: "find ${params.PROJECT_WORKSPACE} -name \\*.ear", returnStdout: true).replaceAll("\\s","")
+                     }
+                sh 'scp $FOLDER $GRUPO_AL_USERNAME@$GRUPO_AL_SERVER_IP:/root' + params.PROJECT_NAME_PRE_FILETOCONTAINER_PATH
             }
         }
         

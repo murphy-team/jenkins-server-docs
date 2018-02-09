@@ -107,7 +107,7 @@ A continuación se definen y especifican las variables de entorno que deben esta
     - Transfer files Production. Sólo se ejecutará en el caso de la rama 'master'. Transfiere el archivo .ear generado en la fase package de maven a la carpeta creada en el stage anterior que se mapea con la carpeta deployments de wildfly. 
     - Regenerate Docker Image - Production Environment. Sólo se ejecutará en el caso de la rama 'master'. En este stage se construirá la imagen de docker del servicio del entorno de Producción y a levantar haciendo uso del docker-compose y la declaración del contenedor en el mismo y del contexto de construcción de dicha imagen. 
 
-    **Nota: Para poder acceder a la carpeta target dentro del módulo que genera el ear del proyecto compile se realiza un comando bash para no depender del nombre del proyecto ni del módulo en concreto. Se debe tener en cuenta que en caso de que la arquitectura del proyecto sea diferente el acceso a la carpeta target del mismo podría variar y por tanto la configuración aplicada a este stage.**
+    **Nota: Para poder localizar el .ear dentro del proyecto compile se realiza una búsqueda dentro del workspace del mismo de todos los archivos en formato *.ear*, si en el proyecto compile esto no se cumple por haber más de uno o por un formato distinto del resultado de la empaquetación se deberá adaptar el script de bash a dichas condiciones para que funcione**
 
 
 ## Plantilla de ejemplo de Jenkinsfile
@@ -124,7 +124,7 @@ En la carpeta de Templates se encuentra un ejemplo sobre la configuración del J
     - SonarQube analysis. Realiza el análisis del código fuente del proyecto haciendo uso de sonar. La herramienta ha debido ser previamente configurada correctamente en Jenkins. En caso de duda acerca de esta configuración consultar la documentación de la configuración de Jenkins(v.2.60.3)
     - Post-build Pre-Production Action. Sólo se ejecutará en el caso de la rama 'develop'. Una vez realizada toda la etapa de build de Jenkins se ejecutará el stage correspondiente a la etapa post-build que realiza la llamada al job del proyecto compile en su versión de Pre-Producción (rama develop) para continuar con la integración continua del proyecto. En este caso el proyecto esta configurado para no esperar a la compilación del compile para acabar con la suya propia con el objetivo de no ocupar más ejecutores de los necesarios. En caso de querer que la compilación de este acabe a la vez que el compile cambiar el parámetro *wait* a true (mirar ejemplo inferior)
 
-
+    ```
             stage('Post-build Pre-Production Action') {
             when {
                 branch 'develop'
@@ -135,13 +135,12 @@ En la carpeta de Templates se encuentra un ejemplo sobre la configuración del J
                 propagate: true,
                 wait: true
             }
-            }
-
-
+        }
+    ```
 
     - Post-build Production Action. Sólo se ejecutará en el caso de la rama 'master'. Una vez realizada toda la etapa de build de Jenkins se ejecutará el stage correspondiente a la etapa post-build que realiza la llamada al job del proyecto compile en su versión de Producción (rama master) para continuar con la integración continua del proyecto. En este caso el proyecto esta configurado para no esperar a la compilación del compile para acabar con la suya propia con el objetivo de no ocupar más ejecutores de los necesarios. En caso de querer que la compilación de este acabe a la vez que el compile cambiar el parámetro *wait* a true (mirar dejemplo inferior)
 
-      
+    ```
             stage('Post-build Production Action') {
             when {
                 branch 'master'
@@ -152,10 +151,9 @@ En la carpeta de Templates se encuentra un ejemplo sobre la configuración del J
                 propagate: true,
                 wait: true
             }
-            }
-
+        }
+    ```
  
-
 
 
 
