@@ -337,7 +337,7 @@ El resto de configuración del proyecto se realizarás a partir del Jenkinsfile.
 
 ### **Job Add Known Hosts**
 
-Dar de alta un nuevo job de tipo Project. La finalidad de este job será la de agregar la clave de Jenkins (que a su vez es la misma que la del servidor) a la lista de claves conocidas por el host (archivo en la carpeta .ssh/known_hosts) 
+Dar de alta un nuevo job de tipo Project. La finalidad de este job será la de agregar la clave del servidor que hospeda a Jenkins (que a su vez es la misma que la de Jenkins) a la lista de claves conocidas por el host (Jenkins en este caso) (archivo en la carpeta .ssh/known_hosts). 
 
 * **Execute shell**
 
